@@ -20,9 +20,18 @@ query_bed_path <- args[5]
 query_fai_path <- args[6]
 query_label <- args[7]
 target_label <- args[8]
-
-#out_dir <- dirname(premiRNA_fasta)
 out_dir <- args[9]
+
+#  base_prefix <- "Ttu_Svevov1_premiRNA_SB_to_Kronos"
+#  genome_db <- "/quobyte/bcmeyersgrp/jwahsieh/genome/Triticum_turgidum_Kronos/final/Ttu_Kronos_genome_db"
+#  genome_fa <- "/quobyte/bcmeyersgrp/jwahsieh/genome/Triticum_turgidum_Kronos/final/Ttu_Kronos_genome_clean.fa"
+#  premiRNA_fasta <- "/quobyte/bcmeyersgrp/jwahsieh/Triticum_turgidum_Kronos_liftover/Ttu_Svevov1_premiRNA_SB.fa"
+#  query_bed_path <- "/quobyte/bcmeyersgrp/jwahsieh/Triticum_turgidum_Kronos_liftover/Ttu_Svevov1_premiRNA_SB_strand.bed"
+#  query_fai_path <- "/quobyte/bcmeyersgrp/jwahsieh/genome/Triticum_turgidum/final/Ttu_Svevov1_genome_clean.fa.fai"
+#  query_label <- "Svevo"
+#  target_label <- "Kronos"
+#  out_dir <- "/quobyte/bcmeyersgrp/jwahsieh/Triticum_turgidum_Kronos_liftover/blast/test"
+
 blast_result <- file.path(out_dir, paste0(base_prefix, "_blast.tab"))
 final_bed <- str_replace(blast_result, "\\.tab$", ".bed")
 extracted_fa <- str_replace(final_bed, "\\.bed$", ".fa")
@@ -157,7 +166,10 @@ p2 <- ggplot() +
     panel.spacing = unit(1, "lines")
   )
 
-ggsave(file.path(out_dir, paste0(base_prefix, "_liftover_connections_color.png")), plot = p2, width = 20, height = 7, dpi = 300)
+#ggsave(file.path(out_dir, paste0(base_prefix, "_liftover_connections_color.png")), 
+#      plot = p2, width = 20, height = 7, dpi = 300)
+ggsave(file.path(out_dir, paste0(base_prefix, "_liftover_connections_color.pdf")),
+      plot = p2, width = 20, height = 7, device = cairo_pdf)
 
 
 missing_queries <- setdiff(unique(df$query), unique(top_hits$query))
