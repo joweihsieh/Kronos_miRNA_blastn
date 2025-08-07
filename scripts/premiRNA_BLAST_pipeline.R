@@ -6,7 +6,7 @@ library(stringr)
 library(ggplot2)
 library(ggforce)
 
-# ========== 參數輸入 ==========
+# ========== Parameters ==========
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) != 9) {
   stop("Usage: script.R <base_prefix> <genome_db> <genome_fa> <premiRNA_fasta> <query_bed> <query_fai> <query_label> <target_label>")
@@ -28,13 +28,13 @@ final_bed <- str_replace(blast_result, "\\.tab$", ".bed")
 extracted_fa <- str_replace(final_bed, "\\.bed$", ".fa")
 upper_fa <- str_replace(final_bed, "\\.bed$", "_Up.fa")
 
-# ========== 1. 執行 BLAST ==========
+# ========== 1. Run BLAST ==========
 cmd <- sprintf("blastn -query %s -db %s -outfmt 6 -out %s",
                premiRNA_fasta, genome_db, blast_result)
 message(cmd)
 system(cmd)
 
-# ========== 2. 讀入與過濾 ==========
+# ========== 2. Read and filter ==========
 df <- read_tsv(blast_result, col_names = FALSE, show_col_types = FALSE)
 colnames(df) <- c("query", "subject", "identity", "alignment_length", "mismatches",
                   "gap_opens", "q_start", "q_end", "s_start", "s_end",
@@ -43,7 +43,7 @@ colnames(df) <- c("query", "subject", "identity", "alignment_length", "mismatche
 bed <- read.table(query_bed_path, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
 colnames(bed) <- c("chrom", "start", "end", "name", "score", "strand")
 
-# 加入染色體資訊進行比對篩選
+# add chromosome info
 df <- df %>%
   left_join(bed[, c("name", "chrom")], by = c("query" = "name")) %>%
   mutate(subject_chr = paste0("Chr", subject),
@@ -56,7 +56,7 @@ top_hits <- df %>%
   slice(1) %>%
   ungroup()
 
-# 產出 BED
+# BED
 write.table(top_hits %>%
               mutate(
                 chrom = subject_chr,
@@ -69,11 +69,11 @@ write.table(top_hits %>%
               select(chrom, start, end, name, score, strand),
             final_bed, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
-# ========== 2.5 提取與轉換序列 ==========
+# ========== 2.5 Extract sequence ==========
 system(sprintf("bedtools getfasta -fi %s -bed %s -fo %s -s", genome_fa, final_bed, extracted_fa))
 system(sprintf("awk '{if ($0 ~ /^>/) print $0; else print toupper($0)}' %s > %s", extracted_fa, upper_fa))
 
-# ========== 3. 繪圖 ==========
+# ========== 3. Plotting ==========
 query_bed <- read.table(query_bed_path, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
 colnames(query_bed) <- c("chr", "start", "end", "name", "score", "strand")
 query_bed$genome <- query_label
