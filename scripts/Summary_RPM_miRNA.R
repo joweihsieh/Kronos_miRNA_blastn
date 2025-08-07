@@ -6,7 +6,7 @@ library(ggplot2)
 library(tidyr)
 library(Biostrings)
 
-# ========== 參數輸入 ==========
+# ========== Parameter ==========
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) != 8) {
   stop("Usage: script.R <gff3_path> <miRNA_Seq> <gff_revised> <Result_fa> <MIR_fa> <counts_path> <total_mapped_path> <colmap_path>")
@@ -22,7 +22,7 @@ total_mapped_path <- args[7]
 colmap_path <- args[8]
 
 
-# ========== 讀入資料 ==========
+# ==========  ==========
 gff3 <- read.csv(gff3_path, sep = "\t", header = FALSE)
 colnames(gff3)[1:8] <- c("seqid", "source", "type", "start", "end", "score", "strand", "phase")
 colnames(gff3)[9] <- "attributes"
@@ -101,7 +101,7 @@ write.table(combined_gff,
 # ==========  ==========
 
 fa <- readDNAStringSet(Result_fa)
-names(fa) <- sub("::.*", "", names(fa))  # 清掉 :: 後的染色體資訊
+names(fa) <- sub("::.*", "", names(fa))  # remove info after :: 
 
 fa_cleaned <- data.frame(
   attributes = names(fa),
